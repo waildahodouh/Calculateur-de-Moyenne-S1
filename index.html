@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Moyennes de S1</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #2E7D32, #1B5E20);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        #back-to-top.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        #back-to-top:hover {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+        
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            line-height: 1.1;
+            white-space: pre;
+            text-align: center;
+            color: #B0BEC5;
+            margin: 15px 0;
+            letter-spacing: -0.5px;
+        }
+        
+        .note-excellente {
+            color: #2E7D32;
+            font-weight: bold;
+            background-color: #E8F5E9;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .note-bonne {
+            color: #1565C0;
+            font-weight: bold;
+            background-color: #E3F2FD;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .note-moyenne {
+            color: #F57C00;
+            font-weight: bold;
+            background-color: #FFF3E0;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .note-faible {
+            color: #C62828;
+            font-weight: bold;
+            background-color: #FFEBEE;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        @keyframes updateHighlight {
+            0% { background-color: #FFF9C4; }
+            100% { background-color: inherit; }
+        }
+        
+        .updated {
+            animation: updateHighlight 1.5s ease;
+        }
+        
+        .email-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .email-button:hover {
+            background: linear-gradient(135deg, #F57C00, #EF6C00);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+            text-decoration: none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="data:image/jpeg;base64,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" 
+                 alt="Photo de l'école" class="profile-photo">
+            <h1>Calculateur de Moyennes de S1</h1>
+            <p class="subtitle">Semestre 1 - Calcul des moyennes pondérées avec coefficients</p>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="main-menu">
+            <li><a href="#calculateur">Calculateur</a></li>
+            <li><a href="#module1">M.1.1</a></li>
+            <li><a href="#module2">M.1.2</a></li>
+            <li><a href="#module3">M.1.3</a></li>
+            <li><a href="#module4">M.1.4</a></li>
+            <li><a href="#module5">M.1.5</a></li>
+            <li><a href="#module6">M.1.6</a></li>
+            <li><a href="#module7">M.1.7</a></li>
+            <li><a href="#resultats">Résultats</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- QR Code positionné en absolu -->
+        <div id="qrcode-container">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com/etudiant-informatique/calcul-moyennes" 
+                 alt="QR Code vers le calculateur sur GitHub" class="qrcode">
+            <p>Scan pour accéder</p>
+        </div>
+
+        <section id="calculateur" class="calculator-section">
+            <h2>Calculateur de Moyennes Pondérées</h2>
+            <div class="calculator-container">
+                <div class="calculator-form">
+                    <h3>Saisissez vos notes et calculez vos moyennes</h3>
+                    <p class="instruction">Entrez vos notes sur 20 pour chaque matière. Le système calcule automatiquement les moyennes pondérées.</p>
+                    
+                    <div class="form-group">
+                        <label for="moduleSelect">Sélectionnez un module pour calcul rapide:</label>
+                        <select id="moduleSelect" class="form-control">
+                            <option value="">-- Choisir un module --</option>
+                            <option value="M1">M.1.1 - Fondements de l'informatique</option>
+                            <option value="M2">M.1.2 - Mathématiques pour l'Ingénieur</option>
+                            <option value="M3">M.1.3 - Algorithmique et Programmation</option>
+                            <option value="M4">M.1.4 - Technologies web et documents structurés</option>
+                            <option value="M5">M.1.5 - Gestion du capital immatériel</option>
+                            <option value="M6">M.1.6 - Langues et communication 1</option>
+                            <option value="M7">M.1.7 - Introduction à l'art et à la culture</option>
+                        </select>
+                    </div>
+                    
+                    <div id="notesInputs" class="notes-inputs">
+                        <p class="placeholder-text">Sélectionnez un module pour saisir les notes</p>
+                    </div>
+                    
+                    <button id="calculateBtn" class="calculate-button">Calculer la Moyenne du Module</button>
+                    
+                    <div id="resultContainer" class="result-container" style="display: none;">
+                        <h4>Résultat du calcul:</h4>
+                        <div id="calculationResult" class="calculation-result"></div>
+                        <p id="resultText" class="result-text"></p>
+                    </div>
+                </div>
+                
+                <div class="coefficients-info">
+                    <h3>Comment calculer une moyenne pondérée?</h3>
+                    <div class="formula-box">
+                        <p class="formula">Moyenne = Σ(note × coefficient) ÷ Σ(coefficients)</p>
+                        <p class="formula-example">Exemple: (15×0.32 + 14×0.34 + 16×0.34) ÷ (0.32+0.34+0.34) = 15.02</p>
+                    </div>
+                    
+                    <h4>Tableau des Coefficients</h4>
+                    <table class="coefficients-table">
+                        <thead>
+                            <tr>
+                                <th>Module</th>
+                                <th>Coefficient</th>
+                                <th>VH</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>M.1.1.1. Architecture</td>
+                                <td>0.32</td>
+                                <td>20</td>
+                            </tr>
+                            <tr>
+                                <td>M.1.1.2. Systèmes d'exploitation</td>
+                                <td>0.34</td>
+                                <td>24</td>
+                            </tr>
+                            <tr>
+                                <td>M.1.1.3. Réseaux</td>
+                                <td>0.34</td>
+                                <td>24</td>
+                            </tr>
+                            <tr>
+                                <td>M.1.2.1. Algèbre</td>
+                                <td>0.34</td>
+                                <td>24</td>
+                            </tr>
+                            <tr>
+                                <td>M.1.2.2. Graphes</td>
+                                <td>0.34</td>
+                                <td>24</td>
+                            </tr>
+                            <tr>
+                                <td>M.1.2.3. Analyse</td>
+                                <td>0.32</td>
+                                <td>22</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button id="showAllCoefficients" class="show-more-btn">Voir tous les coefficients</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="module1" class="module-section">
+            <h2>M.1.1 - Fondements de l'informatique</h2>
+            <div class="module-info">
+                <p><strong>Volume horaire total:</strong> 68h | <strong>Crédits:</strong> 6 ECTS | <strong>Coefficients totaux:</strong> 1.00</p>
+            </div>
+            <div class="module-content">
+                <article class="subject-card" data-coefficient="0.32" data-vh="20">
+                    <h3>M.1.1.1. Architecture des ordinateurs</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.32</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note111">Note (/20):</label>
+                        <input type="number" id="note111" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 20 heures</p>
+                        <p class="subject-description">Composants matériels, architecture CPU, mémoire, bus système</p>
+                    </div>
+                    <div class="note-display" id="display111"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.34" data-vh="24">
+                    <h3>M.1.1.2. Systèmes d'exploitation</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.34</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note112">Note (/20):</label>
+                        <input type="number" id="note112" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Gestion des processus, mémoire, fichiers, principes des OS</p>
+                    </div>
+                    <div class="note-display" id="display112"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.34" data-vh="24">
+                    <h3>M.1.1.3. Initiation aux réseaux informatiques</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.34</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note113">Note (/20):</label>
+                        <input type="number" id="note113" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Modèle OSI, TCP/IP, protocoles réseau, topologies</p>
+                    </div>
+                    <div class="note-display" id="display113"></div>
+                </article>
+            </div>
+            <div class="module-summary">
+                <div class="summary-content">
+                    <div class="summary-left">
+                        <p><strong>Moyenne du module:</strong> <span id="moyenneM1" class="average-grade">--/20</span></p>
+                        <p><strong>Somme des coefficients:</strong> <span id="coefM1">1.00</span></p>
+                    </div>
+                    <button class="calc-module-btn" data-module="M1">Calculer moyenne M.1.1</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="module2" class="module-section">
+            <h2>M.1.2 - Mathématiques pour l'Ingénieur</h2>
+            <div class="module-info">
+                <p><strong>Volume horaire total:</strong> 70h | <strong>Crédits:</strong> 6 ECTS | <strong>Coefficients totaux:</strong> 1.00</p>
+            </div>
+            <div class="module-content">
+                <article class="subject-card" data-coefficient="0.34" data-vh="24">
+                    <h3>M.1.2.1. Algèbre matricielle</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.34</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note121">Note (/20):</label>
+                        <input type="number" id="note121" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Matrices, déterminants, valeurs propres, diagonalisation</p>
+                    </div>
+                    <div class="note-display" id="display121"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.34" data-vh="24">
+                    <h3>M.1.2.2. Théorie des graphes</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.34</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note122">Note (/20):</label>
+                        <input type="number" id="note122" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Graphes orientés/non orientés, chemins, cycles, algorithmes</p>
+                    </div>
+                    <div class="note-display" id="display122"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.32" data-vh="22">
+                    <h3>M.1.2.3. Analyse</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.32</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note123">Note (/20):</label>
+                        <input type="number" id="note123" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 22 heures</p>
+                        <p class="subject-description">Fonctions, limites, dérivées, intégrales, séries</p>
+                    </div>
+                    <div class="note-display" id="display123"></div>
+                </article>
+            </div>
+            <div class="module-summary">
+                <div class="summary-content">
+                    <div class="summary-left">
+                        <p><strong>Moyenne du module:</strong> <span id="moyenneM2" class="average-grade">--/20</span></p>
+                        <p><strong>Somme des coefficients:</strong> <span id="coefM2">1.00</span></p>
+                    </div>
+                    <button class="calc-module-btn" data-module="M2">Calculer moyenne M.1.2</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="module3" class="module-section">
+            <h2>M.1.3 - Algorithmique et Programmation</h2>
+            <div class="module-info">
+                <p><strong>Volume horaire total:</strong> 60h | <strong>Crédits:</strong> 6 ECTS | <strong>Coefficients totaux:</strong> 1.00</p>
+            </div>
+            <div class="module-content">
+                <article class="subject-card" data-coefficient="0.34" data-vh="20">
+                    <h3>M.1.3.1. Algorithmique</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.34</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note131">Note (/20):</label>
+                        <input type="number" id="note131" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 20 heures</p>
+                        <p class="subject-description">Complexité, structures de données, algorithmes de tri et recherche</p>
+                    </div>
+                    <div class="note-display" id="display131"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.33" data-vh="20">
+                    <h3>M.1.3.2. Programmation en C</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.33</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note132">Note (/20):</label>
+                        <input type="number" id="note132" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 20 heures</p>
+                        <p class="subject-description">Syntaxe, pointeurs, allocation dynamique, structures</p>
+                    </div>
+                    <div class="note-display" id="display132"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.33" data-vh="20">
+                    <h3>M.1.3.3. Programmation en Python</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.33</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note133">Note (/20):</label>
+                        <input type="number" id="note133" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 20 heures</p>
+                        <p class="subject-description">POO, bibliothèques scientifiques, traitement de données</p>
+                    </div>
+                    <div class="note-display" id="display133"></div>
+                </article>
+            </div>
+            <div class="module-summary">
+                <div class="summary-content">
+                    <div class="summary-left">
+                        <p><strong>Moyenne du module:</strong> <span id="moyenneM3" class="average-grade">--/20</span></p>
+                        <p><strong>Somme des coefficients:</strong> <span id="coefM3">1.00</span></p>
+                    </div>
+                    <button class="calc-module-btn" data-module="M3">Calculer moyenne M.1.3</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="module4" class="module-section">
+            <h2>M.1.4 - Technologies web et documents structurés</h2>
+            <div class="module-info">
+                <p><strong>Volume horaire total:</strong> 48h | <strong>Crédits:</strong> 4 ECTS | <strong>Coefficients totaux:</strong> 1.00</p>
+            </div>
+            <div class="module-content">
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>M.1.4.1. Technologies Web</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note141">Note (/20):</label>
+                        <input type="number" id="note141" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">HTML5, CSS3, JavaScript, frameworks front-end</p>
+                    </div>
+                    <div class="note-display" id="display141"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>M.1.4.2. Documents structurés</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note142">Note (/20):</label>
+                        <input type="number" id="note142" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">XML, XSLT, DTD, schémas, transformation de documents</p>
+                    </div>
+                    <div class="note-display" id="display142"></div>
+                </article>
+            </div>
+            <div class="module-summary">
+                <div class="summary-content">
+                    <div class="summary-left">
+                        <p><strong>Moyenne du module:</strong> <span id="moyenneM4" class="average-grade">--/20</span></p>
+                        <p><strong>Somme des coefficients:</strong> <span id="coefM4">1.00</span></p>
+                    </div>
+                    <button class="calc-module-btn" data-module="M4">Calculer moyenne M.1.4</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="module5" class="module-section">
+            <h2>M.1.5 - Gestion du capital immatériel</h2>
+            <div class="module-info">
+                <p><strong>Volume horaire total:</strong> 48h | <strong>Crédits:</strong> 4 ECTS | <strong>Coefficients totaux:</strong> 1.00</p>
+            </div>
+            <div class="module-content">
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>M.1.5.1. Knowledge Management (KM)</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note151">Note (/20):</label>
+                        <input type="number" id="note151" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Gestion des connaissances, capital intellectuel, systèmes</p>
+                    </div>
+                    <div class="note-display" id="display151"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>M.1.5.2. Veille technologique</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note152">Note (/20):</label>
+                        <input type="number" id="note152" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Veille stratégique, technologique, outils et méthodes</p>
+                    </div>
+                    <div class="note-display" id="display152"></div>
+                </article>
+            </div>
+            <div class="module-summary">
+                <div class="summary-content">
+                    <div class="summary-left">
+                        <p><strong>Moyenne du module:</strong> <span id="moyenneM5" class="average-grade">--/20</span></p>
+                        <p><strong>Somme des coefficients:</strong> <span id="coefM5">1.00</span></p>
+                    </div>
+                    <button class="calc-module-btn" data-module="M5">Calculer moyenne M.1.5</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="module6" class="module-section">
+            <h2>M.1.6 - Langues et communication 1</h2>
+            <div class="module-info">
+                <p><strong>Volume horaire total:</strong> 48h | <strong>Crédits:</strong> 4 ECTS | <strong>Coefficients totaux:</strong> 1.00</p>
+            </div>
+            <div class="module-content">
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>M.1.6.1. TEC 1</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note161">Note (/20):</label>
+                        <input type="number" id="note161" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Techniques d'expression et de communication</p>
+                    </div>
+                    <div class="note-display" id="display161"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>M.1.6.2. English for General Purposes 1</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note162">Note (/20):</label>
+                        <input type="number" id="note162" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Anglais général et technique</p>
+                    </div>
+                    <div class="note-display" id="display162"></div>
+                </article>
+            </div>
+            <div class="module-summary">
+                <div class="summary-content">
+                    <div class="summary-left">
+                        <p><strong>Moyenne du module:</strong> <span id="moyenneM6" class="average-grade">--/20</span></p>
+                        <p><strong>Somme des coefficients:</strong> <span id="coefM6">1.00</span></p>
+                    </div>
+                    <button class="calc-module-btn" data-module="M6">Calculer moyenne M.1.6</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="module7" class="module-section">
+            <h2>M.1.7 - Introduction à l'art et à la culture au Maroc et en Afrique</h2>
+            <div class="module-info">
+                <p><strong>Volume horaire total:</strong> 96h | <strong>Crédits:</strong> 4 ECTS | <strong>Coefficients totaux:</strong> 2.00</p>
+            </div>
+            <div class="module-content">
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>1.7.1 - Introduction à la culture marocaine et africaine</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note171">Note (/20):</label>
+                        <input type="number" id="note171" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Culture marocaine et africaine - Version française</p>
+                    </div>
+                    <div class="note-display" id="display171"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>مقدمة إلى الثقافة المغربية والإفريقية</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note172">Note (/20):</label>
+                        <input type="number" id="note172" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Culture marocaine et africaine - Version arabe</p>
+                    </div>
+                    <div class="note-display" id="display172"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>1.7.2 - Introduction à l'art marocain et africain</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note173">Note (/20):</label>
+                        <input type="number" id="note173" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Art marocain et africain - Version française</p>
+                    </div>
+                    <div class="note-display" id="display173"></div>
+                </article>
+                
+                <article class="subject-card" data-coefficient="0.50" data-vh="24">
+                    <h3>مقدمة إلى الفن المغربي والإفريقي</h3>
+                    <div class="coefficient-badge">
+                        <span class="coef-label">Coefficient:</span>
+                        <span class="coef-value">0.50</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <label for="note174">Note (/20):</label>
+                        <input type="number" id="note174" class="note-input" min="0" max="20" step="0.1" placeholder="0-20">
+                    </div>
+                    <div class="subject-details">
+                        <p><strong>VH:</strong> 24 heures</p>
+                        <p class="subject-description">Art marocain et africain - Version arabe</p>
+                    </div>
+                    <div class="note-display" id="display174"></div>
+                </article>
+            </div>
+            <div class="module-summary">
+                <div class="summary-content">
+                    <div class="summary-left">
+                        <p><strong>Moyenne du module:</strong> <span id="moyenneM7" class="average-grade">--/20</span></p>
+                        <p><strong>Somme des coefficients:</strong> <span id="coefM7">2.00</span></p>
+                    </div>
+                    <button class="calc-module-btn" data-module="M7">Calculer moyenne M.1.7</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="resultats" class="results-section">
+            <h2>Synthèse des Résultats</h2>
+            <div class="results-container">
+                <div class="results-summary">
+                    <h3>Résultats Globaux</h3>
+                    <div class="global-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <p class="stat-label">Moyenne Générale Pondérée</p>
+                                <p id="globalAverage" class="stat-value">--/20</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚖️</div>
+                            <div class="stat-content">
+                                <p class="stat-label">Total des Coefficients</p>
+                                <p id="totalCoefficients" class="stat-value">--</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-content">
+                                <p class="stat-label">Modules Validés</p>
+                                <p id="statsValidated" class="stat-value">0/7</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-content">
+                                <p class="stat-label">Mention</p>
+                                <p id="mention" class="stat-value">--</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="calculateAllBtn" class="action-button calculate-all">Calculer Toutes les Moyennes</button>
+                        <button id="exportBtn" class="action-button export">Exporter les Résultats</button>
+                        <button id="resetBtn" class="action-button reset">Réinitialiser les Notes</button>
+                        <a href="mailto:professeur@universite.edu?subject=Résultats%20Semestre%201&body=Bonjour,%0D%0A%0D%0AVoici mes résultats académiques:%0D%0A" 
+                           id="emailResultsBtn" class="action-button email">
+                            📧 Envoyer par Email
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="results-details">
+                    <h3>Détails par Module</h3>
+                    <div class="modules-results">
+                        <div id="modulesResultsList" class="modules-list">
+                            <p class="placeholder-text">Saisissez vos notes pour voir les résultats détaillés</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside>
+            <div class="info-container">
+                <h3>Informations Importantes</h3>
+                <div class="info-box">
+                    <h4>Comment utiliser ce calculateur:</h4>
+                    <ol class="instructions-list">
+                        <li>Saisissez vos notes sur 20 pour chaque matière</li>
+                        <li>Les moyennes sont calculées automatiquement</li>
+                        <li>Cliquez sur "Calculer" pour vérifier les résultats</li>
+                        <li>Exportez vos résultats si nécessaire</li>
+                    </ol>
+                </div>
+                
+                <div class="info-box">
+                    <h4>Seuils de validation:</h4>
+                    <ul class="thresholds-list">
+                        <li><span class="threshold excellent">≥ 16/20</span> : Mention Très Bien</li>
+                        <li><span class="threshold good">≥ 14/20</span> : Mention Bien</li>
+                        <li><span class="threshold average">≥ 12/20</span> : Mention Assez Bien</li>
+                        <li><span class="threshold pass">≥ 10/20</span> : Module validé</li>
+                        <li><span class="threshold fail">&lt; 10/20</span> : Rattrapage nécessaire</li>
+                    </ul>
+                </div>
+                
+                <div class="quick-calc">
+                    <h4>Calculateur Rapide</h4>
+                    <div class="quick-form">
+                        <div class="form-group">
+                            <label for="quickNote1">Note 1:</label>
+                            <input type="number" id="quickNote1" class="form-control quick-input" min="0" max="20" step="0.1" placeholder="Note">
+                        </div>
+                        <div class="form-group">
+                            <label for="quickCoef1">Coeff 1:</label>
+                            <input type="number" id="quickCoef1" class="form-control quick-input" min="0" step="0.01" placeholder="0.00" value="1.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="quickNote2">Note 2:</label>
+                            <input type="number" id="quickNote2" class="form-control quick-input" min="0" max="20" step="0.1" placeholder="Note">
+                        </div>
+                        <div class="form-group">
+                            <label for="quickCoef2">Coeff 2:</label>
+                            <input type="number" id="quickCoef2" class="form-control quick-input" min="0" step="0.01" placeholder="0.00" value="1.00">
+                        </div>
+                        <button id="quickCalcBtn" class="quick-calc-btn">Calculer</button>
+                        <div id="quickResult" class="quick-result"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <button id="back-to-top" title="Retour en haut de la page">↑</button>
+
+    <footer>
+        <div class="footer-content">
+            <div class="ascii-art">
+╔══════════════════════════════════════════════════════════════╗
+║  ██████  █████  ██      ██████  ██    ██ ███████ ███████     ║
+║ ██      ██   ██ ██     ██    ██ ██    ██ ██      ██          ║
+║ ██      ███████ ██     ██    ██ ██    ██ █████   ███████     ║
+║ ██      ██   ██ ██     ██    ██  ██  ██  ██           ██     ║
+║  ██████ ██   ██ ███████ ██████    ████   ███████ ███████     ║
+╚══════════════════════════════════════════════════════════════╝
+            </div>
+            
+            <p id="copyright">© 2026 Calculateur de Moyennes de S1</p>
+            <p>Développé pour les étudiants - Tous droits réservés</p>
+            <p class="footer-note">Ce calculateur utilise les coefficients officiels du semestre 1</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
